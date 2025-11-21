@@ -111,9 +111,12 @@ const CalendarPage = () => {
       const updatedEvent = {
         ...editEventData.event,
         title,
+        weekStart: formatDate(weekStart),
       };
 
-      const res = await updateEvent(editEventData.event.id, updatedEvent);
+      const eventId = editEventData.event._id || editEventData.event.id;
+
+      const res = await updateEvent(eventId, updatedEvent);
 
       dispatch({
         type: "UPDATE_EVENT",
@@ -132,7 +135,7 @@ const CalendarPage = () => {
         dayIndex: newEventData.dayIndex,
         startMinutes: newEventData.startMinutes,
         endMinutes: newEventData.endMinutes,
-        weekStart: "2024-01-01", 
+        weekStart: formatDate(weekStart),
       };
 
       const res = await createEvent(newEvent);
@@ -150,10 +153,9 @@ const CalendarPage = () => {
   const handleDeleteEvent = async () => {
     if (!editEventData?.event) return;
 
-    const eventId = editEventData.event.id;
+    const eventId = editEventData.event._id || editEventData.event.id;
 
     try {
-
       await deleteEventApi(eventId);
 
       dispatch({
@@ -169,13 +171,18 @@ const CalendarPage = () => {
   };
 
   const loadEventsForWeek = async () => {
-    const weekString = formatDate(weekStart);
-    const res = await getEvents(weekString);
+    try {
+      const weekString = formatDate(weekStart);
 
-    dispatch({
-      type: "SET_EVENTS",
-      payload: res.data,
-    });
+      const res = await getEvents(weekString);
+
+      dispatch({
+        type: "SET_EVENTS",
+        payload: res.data,
+      });
+    } catch (error) {
+      console.error("Failed to load events:", error);
+    }
   };
 
   useEffect(() => {
@@ -311,7 +318,7 @@ const CalendarPage = () => {
                     <div
                       key={ev.id}
                       onClick={(e) => {
-                        e.stopPropagation(); 
+                        e.stopPropagation();
                         setEditEventData({
                           dayIndex: ev.dayIndex,
                           startMinutes: ev.startMinutes,

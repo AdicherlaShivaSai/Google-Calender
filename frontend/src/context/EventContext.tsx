@@ -11,7 +11,6 @@ type Action =
   | { type: "UPDATE_EVENT"; payload: CalendarEvent }
   | { type: "SET_EVENTS"; payload: CalendarEvent[] };
 
-
 const initialState: State = {
   events: [],
 };
@@ -27,9 +26,11 @@ function eventReducer(state: State, action: Action): State {
     case "DELETE_EVENT":
       return {
         ...state,
-        events: state.events.filter((ev) => ev.id !== action.payload),
+        events: state.events.filter(
+          (ev: any) => (ev._id || ev.id) !== action.payload
+        ),
       };
-
+      
     case "UPDATE_EVENT":
       return {
         ...state,
@@ -48,7 +49,6 @@ function eventReducer(state: State, action: Action): State {
   }
 }
 
-
 const EventContext = createContext<{
   state: State;
   dispatch: React.Dispatch<Action>;
@@ -56,7 +56,6 @@ const EventContext = createContext<{
   state: initialState,
   dispatch: () => {},
 });
-
 
 export const EventProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -69,6 +68,5 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({
     </EventContext.Provider>
   );
 };
-
 
 export const useEventContext = () => useContext(EventContext);

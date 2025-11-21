@@ -6,5 +6,5 @@ export function getMonday(date: Date) {
 }
 
 export function formatDate(date: Date) {
-  return date.toISOString().split("T")[0]; // YYYY-MM-DD
+  return date.toISOString().slice(0, 10);
 }

@@ -2,13 +2,9 @@ const Event = require("../models/Event");
 
 // GET events for a week
 exports.getEvents = async (req, res) => {
-  try {
-    const { week } = req.query;
-    const events = await Event.find({ weekStart: week });
-    res.json(events);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  const { week } = req.query;
+  const events = await Event.find({ weekStart: week });
+  res.json(events);
 };
 
 // CREATE event
@@ -25,23 +21,33 @@ exports.createEvent = async (req, res) => {
 // UPDATE event
 exports.updateEvent = async (req, res) => {
   try {
-    const event = await Event.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
     res.json(event);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: "Server error while updating event" });
   }
 };
 
 // DELETE event
 exports.deleteEvent = async (req, res) => {
   try {
-    await Event.findByIdAndDelete(req.params.id);
-    res.json({ msg: "Deleted" });
+    const event = await Event.findByIdAndDelete(req.params.id);
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    res.json({ message: "Event deleted successfully" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: "Server error while deleting event" });
   }
 };
